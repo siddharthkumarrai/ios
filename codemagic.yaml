@@ -1,21 +1,24 @@
 workflows:
   ios-build:
-    name: iOS Build Workflow
-    max_build_duration: 60
+    name: Build .ipa
     environment:
       vars:
-        XCODE_WORKSPACE: "YourApp.xcworkspace"  # Change this to your actual .xcworkspace filename
-        XCODE_SCHEME: "YourApp"                # Change this to your actual scheme name
-      xcode: latest
+        XCODE_WORKSPACE: "MuseStudio.xcworkspace"
+        XCODE_SCHEME: "MuseStudio"
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: "com.yourcompany.musestudio"  # <-- Replace with real bundle ID
     scripts:
-      - name: Install CocoaPods
+      - name: Install dependencies
         script: |
+          npm install
           cd ios
           pod install
       - name: Build .ipa
         script: |
-          xcodebuild clean -workspace $XCODE_WORKSPACE -scheme $XCODE_SCHEME -configuration Release -sdk iphoneos
-          xcodebuild archive -workspace $XCODE_WORKSPACE -scheme $XCODE_SCHEME -archivePath build/$XCODE_SCHEME.xcarchive
-          xcodebuild -exportArchive -archivePath build/$XCODE_SCHEME.xcarchive -exportOptionsPlist ios/ExportOptions.plist -exportPath build/ipa
+          cd ios
+          xcodebuild clean -workspace "$XCODE_WORKSPACE" -scheme "$XCODE_SCHEME" -configuration Release -sdk iphoneos
+          xcodebuild archive -workspace "$XCODE_WORKSPACE" -scheme "$XCODE_SCHEME" -archivePath ../build/$XCODE_SCHEME.xcarchive
+          xcodebuild -exportArchive -archivePath ../build/$XCODE_SCHEME.xcarchive -exportOptionsPlist exportOptions.plist -exportPath ../build/ipa
     artifacts:
       - build/ipa/*.ipa
